@@ -1,0 +1,1 @@
+slaas_jwtPrivateKey = jwtKey
