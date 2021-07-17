@@ -1,11 +1,6 @@
 const mysql = require('mysql');
+const envVariables = require('./envVariables')
 
-const dbConnection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '0112704105',
-    database : 'slaasproject',
-    multipleStatements: true
-});
+const dbConnection = mysql.createConnection(envVariables.mysqlConnection);
 
 module.exports = dbConnection

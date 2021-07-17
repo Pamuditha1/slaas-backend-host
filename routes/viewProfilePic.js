@@ -6,19 +6,7 @@ const path = require('path');
 
 app.use(cors());
 
-const mysql = require('mysql');
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : '0112704105',
-  database : 'slaasproject'
-});
-
-connection.connect((err) => {
-  if(!err) return console.log("Successfully connected to MySql database");
-
-  else console.log("Database connection failed" , send.stringify(err));   
-});
+const connection = require('../database')
 
 
 // router.get('/:id',function(req, res) {

@@ -12,7 +12,10 @@ router.post('/', async (req, res) => {
 
     //Check whether the user available
     connection.query(`SELECT email,password,accountType,username FROM users WHERE email='${req.body.email}'`, async function (error, results, fields) {
-        if (error) throw error;
+        if (error) {
+            console.log("User Login Error", error)
+            throw error;
+        }
         let i=0;
         let alreadyReg = false;
         let passwordCorrect = false;

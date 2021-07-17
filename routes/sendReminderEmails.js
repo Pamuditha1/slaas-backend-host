@@ -5,12 +5,8 @@ const nodemailer = require('nodemailer');
 const nodemailMailGun = require('nodemailer-mailgun-transport')
 const env = require('../envVariables')
 
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '0112704105',
-    database : 'slaasproject'
-});
+const connection = require('../database')
+
 let transporter = nodemailer.createTransport(nodemailMailGun(env.emailAuth));
 
 let mailContent={
@@ -27,11 +23,6 @@ let mailContent={
     // ]
 };
 
-connection.connect((err) => {
-    if(!err) return console.log("Successfully connected to MySql database");
-
-    else console.log("Database connection failed" , send.stringify(err));   
-});
 
 router.get('/last-update', async (req, res) => {
 

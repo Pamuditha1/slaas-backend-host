@@ -13,20 +13,7 @@ const generateUniqueId = require('generate-unique-id');
 const router = express.Router();
 const mysql = require('mysql');
 
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '0112704105',
-    database : 'slaasproject'
-});
-// var connection = mysql.createConnection({host: "slaasdatabase.mysql.database.azure.com", user: "adminpamu@slaasdatabase", password: '0112704105Abc', database: 'slaasproject', port: 3306});
-
-
-connection.connect((err) => {
-    if(!err) return console.log("Successfully connected to MySql database");
-
-    else console.log("Database connection failed" , send.stringify(err));   
-});
+const connection = require('../database')
 
 let memberFirstName = '';
 // const id = generateUniqueId({

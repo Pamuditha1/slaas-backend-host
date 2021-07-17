@@ -6,21 +6,8 @@ const router = express.Router();
 const mysql = require('mysql');
 const { v1: uuidv1 } = require('uuid');
 
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '0112704105',
-    database : 'slaasproject'
-});
-let id = '';
-   
-  connection.connect((err) => {
-      if(!err) return console.log("Successfully connected to MySql database");
-  
-      else console.log("Database connection failed" , JSON.stringify(err));
-      
-  });
-
+const connection = require('../database')
+  let id = '';
 
 router.post('/', async (req, res) => {
 

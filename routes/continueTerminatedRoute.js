@@ -3,12 +3,7 @@ const router = express.Router();
 
 const mysql = require('mysql');
 
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '0112704105',
-    database : 'slaasproject'
-});
+const connection = require('../database')
 
 router.post('/:memNo',function(req, res) {
 

@@ -7,20 +7,7 @@ const env = require('../envVariables')
 const router = express.Router();
 const mysql = require('mysql');
 
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '0112704105',
-    database : 'slaasproject'
-});
-   
-  connection.connect((err) => {
-      if(!err) return console.log("Successfully connected to MySql database");
-  
-      else console.log("Database connection failed" , JSON.stringify(err));
-
-      
-  });
+const connection = require('../database')
 
   router.post('/admin', async (req, res) => {
 

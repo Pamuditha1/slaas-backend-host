@@ -7,9 +7,9 @@ const envVariables = require('./envVariables')
 
 const dbConnection = require('./database')
 dbConnection.connect((err) => {
-    if(!err) return console.log("Successfully connected to MySql database");
+    if(!err) return console.log("Successfully Connected to the MySql Database");
 
-    else console.log("Database connection failed" , JSON.stringify(err));
+    else console.log("Database Connection Failed" , JSON.stringify(err));
 });
 
 var path = require('path');
@@ -75,6 +75,7 @@ app.use(cors())
 app.use(express.json());
 app.use('/slaas/api/login-user', userLogin);
 app.use('/slaas/api/register-user', users);
+app.use('/slaas/api/user/search', searchMember);
 app.use('/slaas/api/user/register-member', members);
 app.use('/slaas/api/user/add-profilepic', profilePicUpload);
 app.use('/slaas/api/user/get-profilepic', viewProfilePic);
@@ -82,7 +83,7 @@ app.use('/slaas/api/user/upload-members', uploadMembers);
 app.use('/slaas/api/user/view/members', viewMembers);
 app.use('/slaas/api/user/member/profile', viewProfile)
 // app.use('/slaas/api/user/view/members/all', viewAllMembers);
-app.use('/slaas/api/user/search', searchMember);
+
 app.use('/slaas/api/user/payment', addPayment);
 app.use('/slaas/api/user/refrees', proposerAseconder);
 app.use('/slaas/api/user/membershipNo', getMembershipNo)
