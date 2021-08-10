@@ -91,6 +91,8 @@ app.use('/slaas/api/user/cal-arrears', calculateArrearsOne);
 app.get('/slaas/api/',(req,res) => {
     
     res.status(200).send('SLAAS API is Ready')
+    res.set('Content-Type', 'text/html');
+    res.send(Buffer.from('<h2>SLAAS API is Ready</h2>'));
 
 });
 
