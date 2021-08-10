@@ -1,66 +1,77 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
-const DateDiff = require('date-diff');
 
 const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
-
-    let today = new Date()
-
-    console.log("Today Year", today)
-    connection.query(`SELECT 
-    title, nameWinitials, status, dot, lastPaidForYear, lastMembershipPaid, arrearsConti, memPaidLast, nic, mobileNo, email, resAddrs, gradeOfMembership, section, enrollDate, 
-    councilPosition, memberFolioNo, membershipNo
-    FROM 
-    members;`
-
-    , async function (error, results, fields) {
-        if (error) console.log(error);
-        
-        let filtered = results.filter((m) => {
-
-            if(m.lastMembershipPaid) {
-                let lastPaidTime = new Date(m.lastMembershipPaid).getTime()
-                let todayTime = new Date(today).getTime()
-
-                let timeDiff = todayTime - lastPaidTime
-                let diffDays = timeDiff / (1000 * 60 * 60 * 24)
-
-                if(diffDays > 365) {
-                    m.lastMembershipPaid = new Date(m.lastMembershipPaid).toLocaleDateString()
-                    m.memPaidLast = new Date(m.memPaidLast).toLocaleDateString()
-                    m.dot = new Date(m.dot).toLocaleDateString()
-                    return true
-                }
-                return false
-            }
-            else false
-        })
-        // console.log(filtered);
-        // console.log(filtered.length)
-        res.status(200).send(filtered);
-
-    });
+    getTerminationDates(res)
+    
 });
 
-function getTerminationDays() {
-    connection.query(`SELECT period FROM terminations WHERE id='1';`
+function getTerminationDates(res) {
 
-    , function (error, results, fields) {
+    try {
+        connection.query(`SELECT * FROM terminations;`
 
-        if (error) console.log(error);
+        , async function (error, results, fields) {
 
-        console.log('TerDays', results[0].period)
+            if (error) throw error
+        
+            let datesToTerminate = results[0].period
+            selectOutdatedMemberships(res, datesToTerminate)      
 
-        pe = results[0].period
-
-        return new Promise((resolve, reject) => {
-            resolve(results[0].period)
-        })      
-    });
+        });
+    }
+    catch(e) {
+        console.log("Get outdated termination period Error : ", e)
+        res.status(500).send(error);
+    }
 }
+
+function selectOutdatedMemberships(res, datesToTerminate) {
+
+    try {
+        let today = new Date()
+
+        //Get outdated members
+        connection.query(`SELECT 
+        title, nameWinitials, status, dot, lastPaidForYear, lastMembershipPaid, arrearsConti, memPaidLast, nic, mobileNo, email, resAddrs, gradeOfMembership, section, enrollDate, 
+        councilPosition, memberFolioNo, membershipNo
+        FROM 
+        members;`
+
+        , async function (error, results, fields) {
+            if (error) throw error
+            
+            let filtered = results.filter((m) => {
+
+                if(m.lastMembershipPaid) {
+                    let lastPaidTime = new Date(m.lastMembershipPaid).getTime()
+                    let todayTime = new Date(today).getTime()
+
+                    let timeDiff = todayTime - lastPaidTime
+                    let diffDays = timeDiff / (1000 * 60 * 60 * 24)
+
+                    if(diffDays > datesToTerminate) {
+                        m.lastMembershipPaid = new Date(m.lastMembershipPaid).toLocaleDateString()
+                        m.memPaidLast = new Date(m.memPaidLast).toLocaleDateString()
+                        m.dot = new Date(m.dot).toLocaleDateString()
+                        return true
+                    }
+                    return false
+                }
+                else false
+            })
+            res.status(200).send(filtered);
+
+        });
+    }
+    catch(e) {
+        console.log("Get outdated members Error : ", e)
+        res.status(500).send(error);
+    }
+}
+
 
 module.exports = router;

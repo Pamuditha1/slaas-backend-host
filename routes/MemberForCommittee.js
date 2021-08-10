@@ -1,45 +1,31 @@
 const express = require('express');
-
 const router = express.Router();
-const mysql = require('mysql');
 
 const connection = require('../database')
 
 router.get('/:memNo', async (req, res) => {
-
-    console.log(req.params.memNo)
 
     connection.query(`SELECT membershipNo, nameWinitials, memberID
     FROM members
     WHERE membershipNo = "${req.params.memNo}";`
 
     , async function (error, results, fields) {
-        if (error) throw error;
-        
-        // console.log(results[0]);
+        if (error) throw error;        
         res.send(results[0])
 
-        // getSeconder(req, res, results[0])
     });
 });
 
 router.post('/', async (req, res) => {
 
-    console.log(req.body)
-
-    let dataArr = [req.body.committe, req.body.position,req.body.from,req.body.to, req.body.memberID, req.body.name, req.body.membershipNo]
-
     connection.query(
         `INSERT INTO currentcommittees (committee, position, fromD, toD, memberID, name, membershipNo) 
         VALUES ('${req.body.committe}', '${req.body.position}','${req.body.fromD}','${req.body.toD}'
         ,'${req.body.memberID}','${req.body.name}','${req.body.membershipNo}')`
-    // `INSERT INTO currentcommittees (committee, position, from, to, memberID )\
-    //     VALUES (?,?,?,?,?)` , dataArr, 
     ,(error, results, fields) => {
 
         if(error) {
             res.status(404).send(error);
-            console.log(error)
             return 
         }
         addToOfficeBarears(req, res)
@@ -49,8 +35,6 @@ router.post('/', async (req, res) => {
 
 
 router.post('/update', async (req, res) => {
-
-    console.log(req.body)
 
     connection.query(
         `UPDATE currentcommittees
@@ -63,7 +47,7 @@ router.post('/update', async (req, res) => {
 
         if(error) {
             res.status(404).send(error);
-            console.log(error)
+            console.log("Update committee error : ", error)
             return 
         }
         let update = true
@@ -82,7 +66,7 @@ function addToOfficeBarears(req, res, update) {
 
         if(error) {
             res.status(404).send(error);
-            console.log(error)
+            console.log("Add committee positions error : ", error)
             return 
         }
 
@@ -93,7 +77,6 @@ function addToOfficeBarears(req, res, update) {
             })
             
         }
-        console.log(results)
         res.status(200).send({
             msg: "Position Successfully Assigned",
             data: req.body.grade

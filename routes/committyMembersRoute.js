@@ -1,46 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 
 const connection = require('../database')
 
 router.get('/:comm', async (req, res) => {
 
-    connection.query(`SELECT * FROM currentcommittees WHERE committee='${req.params.comm}';`
+    try {
 
-    , async function (error, results, fields) {
+        connection.query(`SELECT * FROM currentcommittees WHERE committee='${req.params.comm}';`
 
-        if (error) console.log(error);
-        
-        // console.log(results)
-        res.status(200).send(results);
+        , async function (error, results, fields) {
 
-    });
+            if (error) throw error
+            
+            res.status(200).send(results);
+
+        });
+    }
+    catch(e) {
+        console.log("Get current committees Error : ", e)
+        res.status(500).send(error);
+    }
 });
 
-// router.post('/', async (req, res) => {
-
-//     console.log("Committe Post", req.body)
-
-//     let committiesData = [req.body.committe]
-
-//     connection.query(`INSERT INTO committies ( committe ) VALUES (?);` , 
-//     committiesData , (error, results, fields) => {
-
-//         if(error) {
-//             res.status(404).send(error);
-//             console.log(error)
-//             return 
-//         }
-
-//         console.log(results)
-//         res.status(200).send({
-//             msg: "Committee Successfully Added",
-//             data: {
-//                 committe: req.body.committe
-//             }
-//         })
-        
-//     });
-// });
 module.exports = router

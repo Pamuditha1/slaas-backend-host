@@ -6,25 +6,26 @@ const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
-    connection.query(`SELECT period, autoPeriod FROM terminations;`
+    //get termination periods
 
-    , async function (error, results, fields) {
+    try {
+        connection.query(`SELECT period, autoPeriod FROM terminations;`
+        , async function (error, results, fields) {
 
-        if (error) console.log(error);
+            if (error) throw error
+            res.status(200).send(results);
 
-        // let grades = []
-        // results.forEach(g => {
-        //     grades.push(g.grade)
-        // });
-     
-        res.status(200).send(results);
-
-    });
+        });
+    }
+    catch(e) {
+        console.log("Get committee member history Error : ", e)
+        res.status(500).send(error);
+    }
 });
 
 router.post('/', async (req, res) => {
 
-    console.log('Ter Req', req.body)
+    //update termination periods
 
     if(req.body.type == "Terminate Suggestion Period") {
         connection.query(`UPDATE terminations
@@ -32,7 +33,7 @@ router.post('/', async (req, res) => {
 
             if(error) {
                 res.status(404).send(error);
-                console.log(error)
+                console.log("Update terminate suggesting period error : ", error)
                 return 
             }
             return res.status(200).send("Termination Dates Successfully Updated.")      
@@ -45,7 +46,7 @@ router.post('/', async (req, res) => {
 
             if(error) {
                 res.status(404).send(error);
-                console.log(error)
+                console.log("Update auto terminating period error : ", error)
                 return 
             }
             return res.status(200).send("Termination Dates Successfully Updated.")      

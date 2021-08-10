@@ -8,51 +8,48 @@ app.use(cors());
 
 const connection = require('../database')
 
-
-// router.get('/:id',function(req, res) {
-
-//     // const image = path.join(__dirname, '/', req.nic)
-//     console.log(`${__dirname}/../profilePics/`)
-//     // res.status(200).sendFile(image)
-// });
 router.get('/:name', function (req, res, next) {
-  console.log('Request Params Image name', req.params.name)
-  if(req.params.name) {
 
-      var options = {
-        root: path.join(appRoot + '/profilePics'),
-        dotfiles: 'deny',
-        headers: {
-            'x-timestamp': Date.now(),
-            'x-sent': true
-        } 
-    }
+  try {
 
-    // var fileName = req.params.name + '.jpg'
-    // console.log(fileName)
+    if(req.params.name) {
 
-    connection.query(`SELECT image FROM members
-    WHERE nic='${req.params.name}';`
-
-    , async function (error, results, fields) {
-        if (error) throw error;
-        
-        console.log(results[0].image);
-
-        const fileName = results[0].image
-
-        if(fileName) {
-
-        res.sendFile(fileName, options, function (err) {
-          if (err) {
-            console.log(err)
-          } else {
-            console.log('Sent:', fileName)
-          }
-        })
+        var options = {
+          root: path.join(appRoot + '/profilePics'),
+          dotfiles: 'deny',
+          headers: {
+              'x-timestamp': Date.now(),
+              'x-sent': true
+          } 
       }
 
-    });
+
+      connection.query(`SELECT image FROM members
+      WHERE nic='${req.params.name}';`
+
+      , async function (error, results, fields) {
+          if (error) throw error;
+
+          const fileName = results[0].image
+
+          if(fileName) {
+
+            res.sendFile(fileName, options, function (err) {
+              if (err) {
+                console.log("Send profile pic error : ", err)
+              }
+            })
+          }
+
+      });
+    }
+    else {
+      res.status(404).send("No member image")
+    }
+  }
+  catch(e) {
+      console.log("Get member profile pic Error : ", e)
+      res.status(500).send(error);
   }
 })
 

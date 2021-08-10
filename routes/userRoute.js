@@ -1,11 +1,8 @@
 const bcrypt = require('bcrypt');
 const express = require('express');
-const Joi = require('joi');
-
 const router = express.Router();
 
 const connection = require('../database')
-
 
 router.post('/admin', async (req, res) => {
 
@@ -28,7 +25,6 @@ router.post('/admin', async (req, res) => {
         }
         if (alreadyReg) {
             
-            // console.log("User already Registered .");
             res.status(400).send('User already Registered.');
         } else {
 

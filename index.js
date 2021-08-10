@@ -6,6 +6,7 @@ const cors = require('cors')
 const envVariables = require('./envVariables')
 
 const dbConnection = require('./database')
+
 dbConnection.connect((err) => {
     if(!err) return console.log("Successfully Connected to the MySql Database");
 
@@ -15,14 +16,11 @@ dbConnection.connect((err) => {
 var path = require('path');
 global.appRoot = path.resolve(__dirname);
 
-const auth = require('./routes/authRoute');
 const users = require('./routes/userRoute');
 const userLogin = require('./routes/loginUsers')
 const members = require('./routes/memberRoute');
 const uploadMembers = require('./routes/csvUploadRoute');
 const viewMembers = require('./routes/viewMemberRoute');
-const viewAllMembers = require('./routes/allMembersRoute')
-// const userLogin = require('./routes/userLogin');
 const searchMember = require('./routes/searchMembersRoute')
 const addPayment = require('./routes/addPaymentRoute')
 const viewPayments = require('./routes/viewPayments')
@@ -49,28 +47,10 @@ const updateMemberData = require('./routes/updateMemberProfileData')
 const getTerminated = require('./routes/getTerminatedMembers')
 const sendReminderMails = require('./routes/sendReminderEmails')
 const autoTerminate = require('./routes/autoTerminateMembers')
-const getOneApplication = require('./routes/getOneApplication')
-const updateApplication = require('./routes/updateApplication')
 const getMailSettingsData = require('./routes/emailSettingsData')
-const getApplicationStatus = require('./routes/getApplicationProgress')
 const calculateArrearsOne = require('./routes/calculateOneArrears')
-const addMemberRequest = require('./routes/addMemberRequests')
-const getMemberRequests = require('./routes/getMemberRequests')
-const updateMemberReq = require('./routes/updateMemberRequest')
 
 
-// if (!config.get('jwtPrivateKey')) {
-//     console.log('FATAL ERROR : jwtPrivateKey is not defined.');
-//     console.log(config.get('jwtPrivateKey'));
-//     process.exit(1);
-// }
-
-// app.use(function(req,res,next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     res.header("Access-Control-Allow-Methods", 'PUT, POST, GET, DELETE, OPTIONS');
-//     next();
-// });
 app.use(cors())
 app.use(express.json());
 app.use('/slaas/api/login-user', userLogin);
@@ -82,8 +62,6 @@ app.use('/slaas/api/user/get-profilepic', viewProfilePic);
 app.use('/slaas/api/user/upload-members', uploadMembers);
 app.use('/slaas/api/user/view/members', viewMembers);
 app.use('/slaas/api/user/member/profile', viewProfile)
-// app.use('/slaas/api/user/view/members/all', viewAllMembers);
-
 app.use('/slaas/api/user/payment', addPayment);
 app.use('/slaas/api/user/refrees', proposerAseconder);
 app.use('/slaas/api/user/membershipNo', getMembershipNo)
@@ -106,46 +84,14 @@ app.use('/slaas/api/user/commity/set', MemberForSetCommity);
 app.use('/slaas/api/user/member/update', updateMemberData);
 app.use('/slaas/api/user/reminder-mails', sendReminderMails);
 app.use('/slaas/api/user/auto-terminate', autoTerminate);
-// app.use('/slaas/api/user/login', userLogin);
-app.use('/slaas/api/applicant/login', userLogin);
-app.use('/slaas/api/user/view-application', getOneApplication);
-app.use('/slaas/api/user/update-application', updateApplication);
 app.use('/slaas/api/user/mailsettings', getMailSettingsData);
-app.use('/slaas/api/user/application-progress', getApplicationStatus);
 app.use('/slaas/api/user/cal-arrears', calculateArrearsOne);
-app.use('/slaas/api/user/member-request', addMemberRequest);
-app.use('/slaas/api/user/member-requests/get', getMemberRequests);
-app.use('/slaas/api/user/member-request/update', updateMemberReq);
-app.use('/slaas/api/auth', auth);
 
-// var connection = mysql.createConnection(envVariables.mysqlConnection);
- 
-// connection.connect((err) => {
-//     if(!err) return console.log("Successfully connected to MySql database");
-
-//     else console.log("Database connection failed" , JSON.stringify(err));
-// });
 
 app.get('/slaas/api/',(req,res) => {
     
-    connection.query('SELECT * FROM users', function (error, results, fields) {
-        if (error) throw error;
-        // console.log('The solution is: ', results[0].userName);
-        //  const re = Object.assign({}, results);
-        //  console.log(re.0);
-        const name = "Jayod";
+    res.status(200).send('SLAAS API is Ready')
 
-        let i=0;
-        for(i=0; i<results.length; i++) {
-            if(name == results[i].userName) {
-                res.send(results[i].email);
-                console.log(results[i].email);
-            }
-        }
-
-    });
-    
-    connection.end();
 });
 
 

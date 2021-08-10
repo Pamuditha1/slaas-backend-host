@@ -1,48 +1,26 @@
-const bcrypt = require('bcrypt');
 const express = require('express');
-const Joi = require('joi');
 const { v1: uuidv1 } = require('uuid');
 const env = require('../envVariables')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 const nodemailMailGun = require('nodemailer-mailgun-transport')
 
-const generateUniqueId = require('generate-unique-id');
-// const {addPersonal,addResAddress} = require('../queries/memberRegisterQueries')
-
 const router = express.Router();
-const mysql = require('mysql');
 
 const connection = require('../database')
 
-let memberFirstName = '';
-// const id = generateUniqueId({
-//     useLetters: false,
-//     length: 8
-// });
 let id = '';
 
 let member = '';
 let username = ''
 let memNo = ''
-// let paymentData = '';
 
 router.post('/', async (req, res) => {
 
-    // const { error } = validateUser(req.body);
-    // if (error) return res.status(400).send(error.details[0].message);
-
-    //Check whether the member available
-    console.log(req.body)
     member = req.body;
     username = req.body.username
-
     memNo = req.body.membershipNo
-    console.log(member.memberData.academic.length)
-    // officialData = req.body.officialData;
-    // professionalData = req.body.professionalData;
-    // membershipData = req.body.membershipData;
-    // paymentData = req.body.paymentData;
+    
     if(req.body.memberID) {
         id=req.body.memberID
     }
@@ -141,7 +119,7 @@ function addMember(res,id,member) {
     
     //*****************  memberDataFolioNo  needed ***********************
     
-    const memberDataArr = [ id ,  member.membershipNo , memberData.gradeOfMem, memberData.section , memberData.status ,  enroll , applied, memberData.council,
+    const memberDataArr = [new Date().toDateString(), id ,  member.membershipNo , memberData.gradeOfMem, memberData.section , memberData.status ,  enroll , applied, memberData.council,
         '' , memberData.title , memberData.nameWinitials , memberData.nameInFull , memberData.firstName , memberData.lastName , 
         memberData.gender, memberData.dob, memberData.nic,  memberData.mobileNo, memberData.landNo, memberData.email, resAddrs, perAddrs,  
         validAddrs , memberData.designation, memberData.division , memberData.placeWork, memberData.offMobile, 
@@ -151,12 +129,12 @@ function addMember(res,id,member) {
     ]
     memberFirstName = memberDataArr[11]
 
-    connection.query(`INSERT INTO members (memberID , membershipNo , gradeOfMembership ,section ,status ,enrollDate , appliedDate ,councilPosition, memberFolioNo , \
+    connection.query(`INSERT INTO members (arrearsUpdated, memberID , membershipNo , gradeOfMembership ,section ,status ,enrollDate , appliedDate ,councilPosition, memberFolioNo , \
         title , nameWinitials , fullName , commonFirst , commomLast , gender , dob , nic , mobileNo , fixedNo , email , resAddrs , perAddrs , sendingAddrs,\
         designation , department , placeOfWork , offMobile , offLand , offFax , offEmail , offAddrs , memberBefore , memberFrom , memberTo ,\
         profession , specialization1 , specialization2 , specialization3 , specialization4 , specialization5, lastPaidForYear, arrearsConti, proposerID , seconderID\
         )\
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,(SELECT proposerID FROM proposers WHERE proposerID='${id}'),\
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,(SELECT proposerID FROM proposers WHERE proposerID='${id}'),\
         (SELECT seconderID FROM seconders WHERE seconderID='${id}'))` , memberDataArr, (error, results, fields) => {
         // (error) ? res.status(404).send(error) : addResAddress()
             if(error) {
@@ -290,222 +268,6 @@ function sendEmail(e, memNo, section, status) {
     
 }
 
-// function addPersonal(member,res,id,member) {
-//     const resAddrs = `${member.resAddOne}, ${member.resAddTwo }, ${member.resAddThree}, ${member.resAddFour}, 
-//     ${member.resAddFive}` ;
-//     const perAddrs =   `${member.perAddOne}, ${member.perAddTwo} , ${member.perAddThree}, ${member.perAddFour}, 
-//     ${member.perAddFive}`;
-
-//     const personal = [id, member.title, member.nameWinitials, member.nameInFull, member.firstName, member.lastName, 
-//     member.gender, member.dob, member.nic,  member.mobileNo, member.landNo, member.email, resAddrs, perAddrs];
-        
-//     memberFirstName = personal[4]
-
-//     connection.query(`INSERT INTO member_personal (personalID, title, nameWinitials, fullName, commonFirst, commomLast, gender, dob, nic, mobileNo, fixedNo, email, resAddrs, perAddrs)\
-//     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)` , personal, (error, results, fields) => {
-//         // (error) ? res.status(404).send(error) : addResAddress()
-//             if(error) {
-//                 res.status(404).send(error);
-//                 return 
-//             }
-//             addOfficial(res,id,member)
-//         // console.log(id)
-            
-//     });
-    
-// };
-
-// function addOfficial(res,id,member) {
-//     const offAddrs =  `${member.offAddrslineOne}, ${member.offAddrslineTwo}, ${member.offAddrslineThree}, 
-//     ${member.offAddrslineFour}, ${member.offAddrslineFive}`;
-
-//     const official = [id, member.designation, member.division , member.placeWork, member.offMobile, 
-//     member.offLandNo, member.offFax, member.offEmail, offAddrs];
-
-//     connection.query(`INSERT INTO member_official (officialID, designation,department,placeOfWork,offMobile,offLand,\
-//         offFax,offEmail,offAddrs)\
-//     VALUES (?,?,?,?,?,?,?,?,?)` , official, (error, results, fields) => {
-        
-//         // (!error) ? res.status(200).send("Successfully Added Member " + memberFirstName) : res.status(404).send(error);
-//         if(error) {
-//             res.status(404).send(error);
-//             // connection.query(`DELETE FROM member_personal WHERE personalID='${id}'`);
-//             deleteRow('member_personal', "personalID", id);
-//             return 
-//         }
-//         addProfessional(res,id,member)
-            
-//         // if(error) databaseError = error;
-    
-//     });
-// }
-// function addProfessional(res,id,member) {
-//     const professional = [id, member.profession, member.fieldOfSpecial[0] , member.fieldOfSpecial[1] , 
-//     member.fieldOfSpecial[2] , member.fieldOfSpecial[3] , member.fieldOfSpecial[4]];
-
-//     connection.query(`INSERT INTO member_professional (professionalID, profession,specialization1,specialization2,specialization3,specialization4,\
-//         specialization5)\
-//     VALUES (?,?,?,?,?,?,?)` , professional, (error, results, fields) => {
-
-//         if(error) {
-//             res.status(404).send(error);
-//             // connection.query(`DELETE FROM member_personal WHERE personalID='${id}'`);
-//             // connection.query(`DELETE FROM member_official WHERE officialID='${id}'`);
-//             deleteRow('member_personal', 'personalID', id);
-//             deleteRow('member_official', 'officialID', id);
-//             return 
-//         }
-//         addAcademic(id,res,member)
-
-//     });
-// }
-
-
-
-
-
-
-// function addMembership(res,id,member) {
-//     const membership = [id, member.gradeOfMem, member.section , member.memBefore , 
-//         member.memFrom , member.memTo , member.sendingAddrs, id, id] ;
-
-//     connection.query(`INSERT INTO member_membership (membershipID, gradeOfMembership,section,memberBefore,memberFrom,memberTo,\
-//         sendingAddrs,proposerID,seconderID)\
-//     VALUES (?,?,?,?,?,?,?,(SELECT proposerID FROM proposers WHERE proposerID='${id}'),\
-//     (SELECT seconderID FROM seconders WHERE seconderID='${id}'))` , membership, (error, results, fields) => {
-
-//         if(error) {
-//             res.status(404).send(error);
-//             // connection.query(`DELETE FROM member_personal WHERE personalID='${id}'`);
-//             // connection.query(`DELETE FROM member_official WHERE officialID='${id}'`);
-//             // connection.query(`DELETE FROM member_academic WHERE professionalID='${id}'`);
-//             // connection.query(`DELETE FROM member_professional WHERE professionalID='${id}'`);
-//             // connection.query(`DELETE FROM proposers WHERE proposerID='${id}'`);
-//             // connection.query(`DELETE FROM seconders WHERE seconderID='${id}'`);
-//             deleteRow('member_personal', 'personalID', id);
-//             deleteRow('member_official', 'officialID', id);
-//             deleteRow('member_academic', 'professionalID', id);
-//             deleteRow('member_professional', 'professionalID', id);
-//             deleteRow('proposers', 'proposerID', id);
-//             deleteRow('seconders', 'seconderID', id);
-//             return 
-//         }
-//         addMember(res,id)
-
-//     });
-// }
-
-// function addPayment(res,id) {
-//     if(member.status === 'member') {
-//     const payment = [id, paymentData.paymentDoneDate, paymentData.receivedData , paymentData.paymentMethod , 
-//         paymentData.amount , paymentData.bank , paymentData.branch, paymentData.accountNo, paymentData.description,id] ;
-
-//     connection.query(`INSERT INTO payments (paymentID, paidDate,recordedDate,method,amount,bank,\
-//         branch,accountNo,description, memberID)\
-//     VALUES (?,?,?,?,?,?,?,?,?,(SELECT memberID FROM members WHERE memberID='${id}'))` , payment, (error, results, fields) => {
-
-//         if(error) {
-//             res.status(404).send(error);
-//             // connection.query(`DELETE FROM member_personal WHERE personalID='${id}'`);
-//             // connection.query(`DELETE FROM member_official WHERE officialID='${id}'`);
-//             // connection.query(`DELETE FROM member_membership WHERE membershipID='${id}'`);
-//             // connection.query(`DELETE FROM member_academic WHERE professionalID='${id}'`);
-//             // connection.query(`DELETE FROM member_professional WHERE professionalID='${id}'`);
-//             // connection.query(`DELETE FROM proposers WHERE proposerID='${id}'`);
-//             // connection.query(`DELETE FROM seconders WHERE seconderID='${id}'`);
-//             deleteRow('member_personal', 'personalID', id);
-//             deleteRow('member_official', 'officialID', id);
-//             deleteRow('member_academic', 'professionalID', id);
-//             deleteRow('member_professional', 'professionalID', id);
-//             deleteRow('member_membership', 'membershipID', id);
-//             deleteRow('proposers', 'proposerID', id);
-//             deleteRow('seconders', 'seconderID', id);
-//             return 
-//         }   
-//         addMember(res,id)
-//     });
-//     }
-//     else {
-//         connection.query(`INSERT INTO payments (paymentID) VALUES ('${id}') ` , (error, results, fields) => {
-    
-//             if(error) {
-//                 res.status(404).send(error);
-//                 // connection.query(`DELETE FROM member_personal WHERE personalID='${id}'`);
-//                 // connection.query(`DELETE FROM member_official WHERE officialID='${id}'`);
-//                 // connection.query(`DELETE FROM member_membership WHERE membershipID='${id}'`);
-//                 // connection.query(`DELETE FROM member_academic WHERE professionalID='${id}'`);
-//                 // connection.query(`DELETE FROM member_professional WHERE professionalID='${id}'`);
-//                 // connection.query(`DELETE FROM proposers WHERE proposerID='${id}'`);
-//                 // connection.query(`DELETE FROM seconders WHERE seconderID='${id}'`);
-//                 deleteRow('member_personal', 'personalID', id);
-//                 deleteRow('member_official', 'officialID', id);
-//                 deleteRow('member_academic', 'professionalID', id);
-//                 deleteRow('member_professional', 'professionalID', id);
-//                 deleteRow('member_membership', 'membershipID', id);
-//                 deleteRow('proposers', 'proposerID', id);
-//                 deleteRow('seconders', 'seconderID', id);
-//                 return 
-//             }   
-//             addMember(res,id)
-//         });
-//     }
-// }
-
-// function addMember(res,id) {
-//     let enroll ;
-//     let applied ;
-//     if(member.enrollDate) {
-//         enroll = new Date();
-//     }
-//     else if(member.appliedDate){
-//         applied = new Date();
-//     }
-//     const member = [id, member.status, enroll , applied , '' , '' , '', '', id, id, id, id, id] ;
-
-//     connection.query(`INSERT INTO members (memberID, status, enrollDate, appliedDate, councilPosition, memberFolioNo, membershipNo,\
-//         memPaidLast, personalID, officialID, professionalID, paymentID, membershipID)\
-//     VALUES (?,?,?,?,?,?,?,?, (SELECT personalID FROM member_personal WHERE personalID='${id}'), 
-//     (SELECT officialID FROM member_official WHERE officialID='${id}'), 
-//     (SELECT professionalID FROM member_professional WHERE professionalID='${id}'), 
-//     (SELECT paymentID FROM payments WHERE paymentID='${id}'),
-//     (SELECT membershipID FROM member_membership WHERE membershipID='${id}'))` , 
-    
-    
-//     member, (error, results, fields) => {
-
-//         if(error) {
-//             res.status(404).send(error);
-//             // connection.query(`DELETE FROM payments WHERE paymentID='${id}'`);
-//             // connection.query(`DELETE FROM member_personal WHERE personalID='${id}'`);
-//             // connection.query(`DELETE FROM member_official WHERE officialID='${id}'`);
-//             // connection.query(`DELETE FROM member_membership WHERE membershipID='${id}'`);
-//             // connection.query(`DELETE FROM member_academic WHERE professionalID='${id}'`);
-//             // connection.query(`DELETE FROM member_professional WHERE professionalID='${id}'`);
-//             // connection.query(`DELETE FROM proposers WHERE proposerID='${id}'`);
-//             // connection.query(`DELETE FROM seconders WHERE seconderID='${id}'`);
-//             deleteRow('payments', 'paymentID', id);
-//             deleteRow('member_personal', 'personalID', id);
-//             deleteRow('member_official', 'officialID', id);
-//             deleteRow('member_academic', 'professionalID', id);
-//             deleteRow('member_professional', 'professionalID', id);
-//             deleteRow('member_membership', 'membershipID', id);
-//             deleteRow('proposers', 'proposerID', id);
-//             deleteRow('seconders', 'seconderID', id);
-//             return 
-//         }   
-//         res.status(200).send("Successfully Added Member " + memberFirstName)
-//     });
-// }
-
-
-
-function deleteRow(table, key, id) {
-
-    connection.query(`DELETE FROM ${table} WHERE ${key}='${id}'`, (error) => {
-        if(error) console.log(error)
-    })
-    
-}
 
 
 // function validateMember(member) {

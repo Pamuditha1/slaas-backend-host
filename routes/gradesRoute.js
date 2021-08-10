@@ -1,64 +1,72 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 
 const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
-    connection.query(`SELECT grade, membershipFee FROM grades;`
+    try{
+        connection.query(`SELECT grade, membershipFee FROM grades;`
 
-    , async function (error, results, fields) {
+        , async function (error, results, fields) {
 
-        if (error) console.log(error);
+            if (error) throw error
+        
+            res.status(200).send(results);
 
-        // let grades = []
-        // results.forEach(g => {
-        //     grades.push(g.grade)
-        // });
-     
-        res.status(200).send(results);
+        });
+    }
+    catch(e) {
+        console.log("Get grades Error : ", e)
+        res.status(500).send(error);
+    }
 
-    });
 });
 
 router.post('/', async (req, res) => {
 
-    // console.log(req.body)
+    try{    
+        connection.query(`INSERT INTO grades (grade, membershipFee) VALUES ('${req.body.grade}', '${req.body.membershipFee}') `, 
+        (error, results, fields) => {
 
-    connection.query(`INSERT INTO grades (grade, membershipFee) VALUES ('${req.body.grade}', '${req.body.membershipFee}') `, 
-    (error, results, fields) => {
+            if(error) {
+                res.status(404).send(error);
+                throw error
+            }
 
-        if(error) {
-            res.status(404).send(error);
-            console.log(error)
-            return 
-        }
-
-        // console.log(results)
-        res.status(200).send({
-            msg: "Grade Successfully Added",
-            data: req.body.grade
-        })
-        
-    });
+            res.status(200).send({
+                msg: "Grade Successfully Added",
+                data: req.body.grade
+            })        
+        });
+    }
+    catch(e) {
+        console.log("Add grades Error : ", e)
+        res.status(500).send(error);
+    }
+    
 });
 
 router.post('/update', async (req, res) => {
 
-    // console.log(req.body)
+    try{
+        connection.query(`UPDATE grades
+        SET membershipFee='${req.body.membershipFee}' WHERE grade='${req.body.grade}';`, (error, results, fields) => {
 
-    connection.query(`UPDATE grades
-    SET membershipFee='${req.body.membershipFee}' WHERE grade='${req.body.grade}';`, (error, results, fields) => {
+            if(error) {
+                
+                res.status(404).send(error);
+                throw error
+            }
+            return res.status(200).send("Membership Fee Successfully Updated.")      
 
-        if(error) {
-            res.status(404).send(error);
-            console.log(error)
-            return 
-        }
-        return res.status(200).send("Membership Fee Successfully Updated.")      
-
-    });
+        });
+    }
+    catch(e) {
+        console.log("Update grades Error : ", e)
+        res.status(500).send(error);
+    }
+    
 });
 
 module.exports = router;

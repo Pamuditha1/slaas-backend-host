@@ -14,6 +14,7 @@ router.post('/', async (req, res) => {
     connection.query(`SELECT email,password,accountType,username FROM users WHERE email='${req.body.email}'`, async function (error, results, fields) {
         if (error) {
             console.log("User Login Error", error)
+            res.status(500).send("Server error")
             throw error;
         }
         let i=0;
@@ -21,7 +22,6 @@ router.post('/', async (req, res) => {
         let passwordCorrect = false;
         let username = '';
         let accountType = '';
-        // console.log(results)
         for(i=0; i<results.length; i++) {
             if(req.body.email == results[i].email) {
                 alreadyReg = true;
@@ -36,15 +36,12 @@ router.post('/', async (req, res) => {
         }
         if (!alreadyReg) {
             
-            // console.log("User haven't Registered .");
             res.status(400).send("User haven't Registered .");
         } 
         else if(!passwordCorrect) {
-            // console.log("Password is incorrect .");
             res.status(400).send('Password is incorrect.');
         }
         else {
-            // console.log(`${username} , ${accountType}`)
             res.status(200).json({
                 username: username,
                 accountType: accountType

@@ -1,81 +1,99 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 
 const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
-    connection.query(`SELECT * FROM committies;`
+    try {
+        //get committees
+        connection.query(`SELECT * FROM committies;`
 
-    , async function (error, results, fields) {
+        , async function (error, results, fields) {
 
-        if (error) console.log(error);
-        
-        // console.log(results)
-        res.status(200).send(results);
+            if (error) throw error
+            
+            res.status(200).send(results);
 
-    });
+        });
+    }
+    catch(e) {
+        console.log("Get committees Error : ", e)
+        res.status(500).send(error);
+    }
 });
 
 router.post('/', async (req, res) => {
 
-    console.log("Committe Post", req.body)
+    try{
+        //add new committee
+        let committiesData = [req.body.committe]
 
-    let committiesData = [req.body.committe]
+        connection.query(`INSERT INTO committies ( committe ) VALUES (?);` , 
+        committiesData , (error, results, fields) => {
 
-    connection.query(`INSERT INTO committies ( committe ) VALUES (?);` , 
-    committiesData , (error, results, fields) => {
+            if(error) throw error
 
-        if(error) {
-            res.status(404).send(error);
-            console.log(error)
-            return 
-        }
-
-        // console.log(results)
-        res.status(200).send({
-            msg: "Committee Successfully Added",
-            data: {
-                committe: req.body.committe
-            }
-        })
-        
-    });
+            // console.log(results)
+            res.status(200).send({
+                msg: "Committee Successfully Added",
+                data: {
+                    committe: req.body.committe
+                }
+            })
+            
+        });
+    }
+    catch(e) {
+        console.log("Add committees Error : ", e)
+        res.status(500).send(error);
+    }
 });
 
 router.get('/history/:comm', async (req, res) => {
 
-    connection.query(`SELECT fromD, toD from officebearershistory WHERE committee="${req.params.comm}" GROUP BY fromD ;`
+    try{
 
-    , async function (error, results, fields) {
+        connection.query(`SELECT fromD, toD from officebearershistory WHERE committee="${req.params.comm}" GROUP BY fromD ;`
 
-        if (error) console.log(error);
-        
-        // console.log(results)
-        let dateRanges = results
-        getMemberAccordingToDates(dateRanges, req, res)
-        // res.status(200).send(results);
+        , async function (error, results, fields) {
 
-    });
+            if (error) throw error
+            
+            let dateRanges = results
+            getMemberAccordingToDates(dateRanges, req, res)
+
+        });
+    }
+    catch(e) {
+        console.log("Get committee history Error : ", e)
+        res.status(500).send(error);
+    }
 });
 
 function getMemberAccordingToDates(dateRanges, req, res) {
 
-    connection.query(`SELECT * from officebearershistory WHERE committee="${req.params.comm}";`
+    try {
 
-    , async function (error, results, fields) {
+        //get member history
+        connection.query(`SELECT * from officebearershistory WHERE committee="${req.params.comm}";`
 
-        if (error) console.log(error);
-        
-        // console.log(results)
-        let response = {
-            ranges: dateRanges,
-            members: results
-        }
-        res.status(200).send(response);
+        , async function (error, results, fields) {
 
-    });
+            if (error) throw error
+            
+            let response = {
+                ranges: dateRanges,
+                members: results
+            }
+            res.status(200).send(response);
+
+        });
+    }
+    catch(e) {
+        console.log("Get committee member history Error : ", e)
+        res.status(500).send(error);
+    }
 }
 
 module.exports = router
