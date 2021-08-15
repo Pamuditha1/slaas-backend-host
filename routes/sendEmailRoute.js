@@ -13,13 +13,6 @@ let mailContent={
     to: '',
     subject: '',
     text: '',
-    // html: '<h1>You can send html formatted content using Nodemailer with attachments</h1>',
-    // attachments: [
-    //     {
-    //         filename: 'image1.png',
-    //         path: appRoot + '/profilePics/image1.png'
-    //     }
-    // ]
 };
 
 
@@ -54,7 +47,10 @@ router.post('/', (req, res) => {
 })
 function sendMailstoSections(sections, grades, totalEmailsList, res) {
 
-    try {
+    // try {
+
+    //select members of perticular sections
+
         if(sections.length>0) {
 
             let sectionQuery = sections.map((s) => {
@@ -78,17 +74,17 @@ function sendMailstoSections(sections, grades, totalEmailsList, res) {
         else {
             sendMailstoGrades(grades, totalEmailsList, res)
         }
-    }
-    catch(e) {
-        console.log("Mail to secions error : ",e);
-        res.status(500).send(e);
+    // }
+    // catch(e) {
+    //     console.log("Mail to secions error : ",e);
+    //     res.status(500).send(e);
         
-    }
+    // }
 }
 
 function sendMailstoGrades(grades, totalEmailsList, res) {
 
-    try {
+    // try {
 
         if(grades.length>0) {
 
@@ -99,6 +95,8 @@ function sendMailstoGrades(grades, totalEmailsList, res) {
         let querArr = gradeQueryQueryString.split(' ')
         querArr.pop()
         let finalString = querArr.join(' ')
+
+        //select members from perticular grades
 
         connection.query(`SELECT email FROM members WHERE ${finalString};`
         , async function (error, results, fields) {
@@ -113,17 +111,20 @@ function sendMailstoGrades(grades, totalEmailsList, res) {
         else {
             sendMailstoEmails(totalEmailsList, res)
         }
-    }
-    catch(e) {
-        console.log("Mail to gradeserror : ",e);
-        res.status(500).send(e);
+    // }
+    // catch(e) {
+    //     console.log("Mail to gradeserror : ",e);
+    //     res.status(500).send(e);
         
-    }
+    // }
 }
 
 function sendMailstoEmails(emails, res) {
 
-    try {
+    // try {
+
+        //send mails
+        
         let mailsCount = emails.length
         let i = 0
         let failed = 0
@@ -155,12 +156,12 @@ function sendMailstoEmails(emails, res) {
             });
             
         })
-    }
-    catch(e) {
-        console.log("Sending mails : ",e);
-        res.status(500).send(e);
+    // }
+    // catch(e) {
+    //     console.log("Sending mails : ",e);
+    //     res.status(500).send(e);
         
-    }
+    // }
 }
 
 

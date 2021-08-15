@@ -5,6 +5,8 @@ const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
+    //get sections for dropdown
+
     connection.query(`SELECT keyName, section FROM sections;`
 
     , async function (error, results, fields) {
@@ -22,6 +24,8 @@ router.post('/', async (req, res) => {
 
     let sectionData = [req.body.key, req.body.section]
 
+    //add new sections
+    
     connection.query(`INSERT INTO sections ( keyName, section) VALUES (?,?);` , 
     sectionData , (error, results, fields) => {
 

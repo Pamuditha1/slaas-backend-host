@@ -11,7 +11,10 @@ router.get('/', async (req, res) => {
 
 function getTerminationDates(res) {
 
-    try {
+    // try {
+
+    //get termination dates
+
         connection.query(`SELECT * FROM terminations;`
 
         , async function (error, results, fields) {
@@ -22,19 +25,20 @@ function getTerminationDates(res) {
             selectOutdatedMemberships(res, datesToTerminate)      
 
         });
-    }
-    catch(e) {
-        console.log("Get outdated termination period Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get outdated termination period Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 function selectOutdatedMemberships(res, datesToTerminate) {
 
-    try {
+    // try {
         let today = new Date()
 
         //Get outdated members
+
         connection.query(`SELECT 
         title, nameWinitials, status, dot, lastPaidForYear, lastMembershipPaid, arrearsConti, memPaidLast, nic, mobileNo, email, resAddrs, gradeOfMembership, section, enrollDate, 
         councilPosition, memberFolioNo, membershipNo
@@ -53,6 +57,8 @@ function selectOutdatedMemberships(res, datesToTerminate) {
                     let timeDiff = todayTime - lastPaidTime
                     let diffDays = timeDiff / (1000 * 60 * 60 * 24)
 
+                    //filter by last membership payment date
+                    
                     if(diffDays > datesToTerminate) {
                         m.lastMembershipPaid = new Date(m.lastMembershipPaid).toLocaleDateString()
                         m.memPaidLast = new Date(m.memPaidLast).toLocaleDateString()
@@ -66,11 +72,11 @@ function selectOutdatedMemberships(res, datesToTerminate) {
             res.status(200).send(filtered);
 
         });
-    }
-    catch(e) {
-        console.log("Get outdated members Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get outdated members Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 

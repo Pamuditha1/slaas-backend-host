@@ -20,7 +20,9 @@ router.get('/:word', async (req, res) => {
 
 function searchMember(searchWord, res) {
 
-    try {
+    //search for a member
+
+    // try {
         connection.query(`SELECT * FROM members WHERE 
         membershipNo LIKE '%${searchWord}%' OR nameWinitials LIKE '%${searchWord}%' OR fullName LIKE '%${searchWord}%' OR commonFirst LIKE '%${searchWord}%' 
         OR commomLast LIKE '%${searchWord}%' OR dob LIKE '%${searchWord}%' OR nic LIKE '%${searchWord}%' OR mobileNo LIKE '%${searchWord}%' 
@@ -42,11 +44,11 @@ function searchMember(searchWord, res) {
             res.status(200).send(results)        
 
         });
-    }
-    catch(e) {
-        console.log("Search member Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Search member Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 module.exports = router;

@@ -5,8 +5,10 @@ const connection = require('../database')
 
 router.get('/last-update', async (req, res) => {
 
-    try{
+    // try{
+
         //get last arrears calculated date
+
         connection.query(`SELECT date FROM arrears ORDER BY id DESC LIMIT 1;`
 
         , async function (error, results, fields) {
@@ -16,11 +18,11 @@ router.get('/last-update', async (req, res) => {
             res.status(200).send(results[0].date);
 
         });
-    }
-    catch(e) {
-        console.log("Get last calculated date Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get last calculated date Error : ", e)
+    //     res.status(500).send(error);
+    // }
     
     
 });
@@ -33,9 +35,10 @@ router.get('/', async (req, res) => {
 
 function getTerminationDates(res) {
 
-    try {
+    // try {
 
         //get period of membership outdating
+
         connection.query(`SELECT * FROM terminations;`
 
         , async function (error, results, fields) {
@@ -46,18 +49,19 @@ function getTerminationDates(res) {
             getGrades(res, datesToTerminate)        
 
         });
-    }
-    catch(e) {
-        console.log("Get termination periods Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get termination periods Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 function getGrades(res, datesToTerminate) {
-
-    try{
+    console.log('dste to terminate : ', datesToTerminate)
+    // try{
 
     //Get membership paying grades
+
         connection.query(`SELECT grade, membershipFee FROM grades WHERE membershipFee != 0;`
 
         , async function (error, results, fields) {
@@ -73,18 +77,19 @@ function getGrades(res, datesToTerminate) {
             getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate)        
 
         });
-    }
-    catch(e) {
-        console.log("Get membership paying grades Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get membership paying grades Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 function getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate) {
 
-    try{
+    // try{
 
         //select membership paying members
+
         let orString = ''
 
         grades.forEach(g => {
@@ -95,6 +100,8 @@ function getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate) {
         withoutSpace.pop()
         let newOrString = withoutSpace.join(' ')
 
+        console.log("NEw Stroing ", newOrString)
+
         connection.query(`SELECT memberID, lastPaidForYear, lastMembershipPaid, arrearsUpdated, gradeOfMembership, arrearsConti 
         FROM members WHERE ${newOrString};`
 
@@ -102,9 +109,12 @@ function getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate) {
 
             let today = new Date()
 
-            if (error) throw error;
+            // if (error) throw error;
+
+            if (error) console.log("Query Error", error)
 
             //get outdated members according to last membership payment date (lastMembershipPaid) - more than 1 year
+
             let outdatedMembers = results.filter((m) => {
 
                 if(m.lastMembershipPaid) {
@@ -117,15 +127,20 @@ function getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate) {
                     let timeDiffUpdate = todayTime - lastUpdated
 
                     //difference between today and last membership payment date
+
                     let diffDays = timeDiff / (1000 * 60 * 60 * 24)
+
                     //difference between today and last update date
+
                     let diffDaysUpdated = timeDiffUpdate/ (1000 * 60 * 60 * 24)
 
                     //select last membershi payment > mem period year
+
                         if(diffDays > datesToTerminate) {
                         
                         //select last update diff > difference between today and last membership payment date diff
-                        if(diffDaysUpdated > diffDays) {
+
+                        if(diffDaysUpdated > diffDays || diffDaysUpdated > datesToTerminate) {
                             return true
                         }
                     }
@@ -135,14 +150,19 @@ function getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate) {
             })
 
             // calculate arrears according to the last mambership paid for year (lastPaidForYear)
+
             outdatedMembers.forEach(m => {
 
                 gradesWfee.forEach(g => {
                     if(m.gradeOfMembership == g.grade) {
                         let finalPaidYear = parseInt(m.lastPaidForYear)
+                        let finalUpdateYear = new Date(m.arrearsUpdated).getFullYear()
                         let thisYear = new Date().getFullYear()
 
-                        let yearsDiff = thisYear - finalPaidYear
+                        // ********************calculate arrears from last updated year
+
+                        //let yearsDiff = thisYear - finalPaidYear
+                        let yearsDiff = thisYear - finalUpdateYear
 
                         if(yearsDiff >= 1) {
                             let arrears = g.membershipFee * yearsDiff
@@ -156,6 +176,7 @@ function getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate) {
             })  
             
             //update last arrears calculated date
+
             connection.query(`INSERT INTO arrears (date) VALUES ('${today.toISOString()}') `, 
             (error, results, fields) => {
 
@@ -168,18 +189,19 @@ function getMembersOfPayingGrades(grades, gradesWfee, res, datesToTerminate) {
             });
             
         });
-    }
-    catch(e) {
-        console.log("Get membership paying members Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get membership paying members Error : ", e)
+    //     res.status(500).send(error);
+    // }
 
     
 }
 
 function setNewArrears(newArrears, memberID) {
 
-    try {
+    // try {
+
         //set arrears updated date
         connection.query(`UPDATE members
         SET arrearsConti='${newArrears}', arrearsUpdated='${new Date().toISOString()}' WHERE memberID='${memberID}';`, (error, results, fields) => {
@@ -187,11 +209,11 @@ function setNewArrears(newArrears, memberID) {
             if(error) throw error
 
         });
-    }
-    catch(e) {
-        console.log("Member set arrears updating : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Member set arrears updating : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 

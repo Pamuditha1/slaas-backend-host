@@ -5,6 +5,8 @@ const connection = require('../database')
 
 router.get('/:memID', async (req, res) => {
 
+    //get payments records
+    
     connection.query(`SELECT * FROM payments
     WHERE memberID = "${req.params.memID}" ORDER BY invoiceNo DESC;`
 

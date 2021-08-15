@@ -5,10 +5,11 @@ const connection = require('../database')
 
 router.get('/:search', async (req, res) => {
 
-    try {
+    // try {
         const searchWord = req.params.search
 
         //Search members for proposers and seconders
+
         connection.query(`SELECT membershipNo, nameWinitials, resAddrs, mobileNo 
         FROM members
         WHERE membershipNo LIKE '%${searchWord}%' OR nameWinitials LIKE '%${searchWord}%' OR mobileNo LIKE '%${searchWord}%'
@@ -20,16 +21,16 @@ router.get('/:search', async (req, res) => {
             if (error) throw error;
             res.send(results[0])
         });
-    }
-    catch(e) {
-        console.log("Search members for proposers and seconders Error : ", e)
-        res.status(500).send(error);
-    }   
+    // }
+    // catch(e) {
+    //     console.log("Search members for proposers and seconders Error : ", e)
+    //     res.status(500).send(error);
+    // }   
 });
 
 router.get('/proposer/:memNo', async (req, res) => {
     
-    try {
+    // try {
     
         connection.query(`SELECT membershipNo, nameWinitials, resAddrs, mobileNo 
         FROM members
@@ -39,16 +40,16 @@ router.get('/proposer/:memNo', async (req, res) => {
             if (error) throw error;
             res.send(results[0])
         });
-    }
-    catch(e) {
-        console.log("Get proposer Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get proposer Error : ", e)
+    //     res.status(500).send(error);
+    // }
 });
 
 router.get('/seconder/:memNo', async (req, res) => {
 
-    try{
+    // try{
         connection.query(`SELECT membershipNo, nameWinitials, resAddrs, mobileNo 
         FROM members
         WHERE membershipNo = "${req.params.memNo}";`
@@ -57,11 +58,11 @@ router.get('/seconder/:memNo', async (req, res) => {
             if (error) throw error;
             res.send(results[0])
         });
-    }
-    catch(e) {
-        console.log("Get seconder Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get seconder Error : ", e)
+    //     res.status(500).send(error);
+    // }
     
 });
 

@@ -5,6 +5,8 @@ const connection = require('../database')
 
 router.get('/:memNo', async (req, res) => {
 
+    //get member for committee
+
     connection.query(`SELECT membershipNo, nameWinitials, memberID
     FROM members
     WHERE membershipNo = "${req.params.memNo}";`
@@ -17,6 +19,8 @@ router.get('/:memNo', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+
+    //assign positions
 
     connection.query(
         `INSERT INTO currentcommittees (committee, position, fromD, toD, memberID, name, membershipNo) 
@@ -36,14 +40,14 @@ router.post('/', async (req, res) => {
 
 router.post('/update', async (req, res) => {
 
+    //update positions
+
     connection.query(
         `UPDATE currentcommittees
-    SET fromD='${req.body.fromD}', toD='${req.body.toD}',memberID='${req.body.memberID}',
-    name='${req.body.name}',membershipNo='${req.body.membershipNo}'
-     WHERE committee='${req.body.committe}' AND position='${req.body.position}';`
-    // `INSERT INTO currentcommittees (committee, position, from, to, memberID )\
-    //     VALUES (?,?,?,?,?)` , dataArr, 
-    ,(error, results, fields) => {
+        SET fromD='${req.body.fromD}', toD='${req.body.toD}',memberID='${req.body.memberID}',
+        name='${req.body.name}',membershipNo='${req.body.membershipNo}'
+        WHERE committee='${req.body.committe}' AND position='${req.body.position}';`
+        ,(error, results, fields) => {
 
         if(error) {
             res.status(404).send(error);
@@ -58,6 +62,8 @@ router.post('/update', async (req, res) => {
 
 
 function addToOfficeBarears(req, res, update) {
+
+    //update committees history records
 
     connection.query(`INSERT INTO officebearershistory (committee, position, fromD, toD, memberID, name, membershipNo)
     VALUES ('${req.body.committe}', '${req.body.position}','${req.body.fromD}','${req.body.toD}'

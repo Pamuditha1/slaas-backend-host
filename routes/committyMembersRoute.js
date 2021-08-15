@@ -5,7 +5,7 @@ const connection = require('../database')
 
 router.get('/:comm', async (req, res) => {
 
-    try {
+    // try {
 
         connection.query(`SELECT * FROM currentcommittees WHERE committee='${req.params.comm}';`
 
@@ -16,11 +16,11 @@ router.get('/:comm', async (req, res) => {
             res.status(200).send(results);
 
         });
-    }
-    catch(e) {
-        console.log("Get current committees Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get current committees Error : ", e)
+    //     res.status(500).send(error);
+    // }
 });
 
 module.exports = router

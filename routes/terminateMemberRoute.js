@@ -8,6 +8,8 @@ router.post('/:memNo',function(req, res) {
     let today = new Date();
     let dot = today.toISOString()
 
+    //terminate members
+
     connection.query(`UPDATE members
     SET status='Terminated', dot='${dot}' WHERE membershipNo='${req.params.memNo}';`, (error, results, fields) => {
 

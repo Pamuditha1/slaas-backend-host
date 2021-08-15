@@ -1,12 +1,25 @@
 const config = require('config');
 const express = require('express');
+require('express-async-errors');
 const app = express();
 const mysql = require('mysql');
 const cors = require('cors')
 const envVariables = require('./envVariables')
+const error = require('./middleware/error')
 
-const dbConnection = require('./database')
+const winston = require('winston')
 
+const logConfiguration = {
+    transports: [
+        new winston.transports.File({
+            filename: 'logs/errors.log'
+        })
+    ]
+};
+const logger = winston.createLogger(logConfiguration);
+
+
+let dbConnection = require('./database')
 dbConnection.connect((err) => {
     if(!err) return console.log("Successfully Connected to the MySql Database");
            
@@ -22,7 +35,7 @@ function reconnect(connection){
     if(connection) connection.destroy();
 
     //- Create a new one
-    var connection = mysql_npm.createConnection(db_config);
+    var connection = mysql.createConnection(envVariables.mysqlConnection);
 
     //- Try to reconnect
     connection.connect(function(err){
@@ -60,6 +73,7 @@ dbConnection.on('error', function(err) {
     //- Error because a connection is already being established
     else if(err.code === "PROTOCOL_ENQUEUE_HANDSHAKE_TWICE"){
         console.log("/!\\ Cannot establish a connection with the database. /!\\ ("+err.code+")");
+        dbConnection = reconnect(dbConnection);
     }
 
     //- Anything else
@@ -70,6 +84,15 @@ dbConnection.on('error', function(err) {
 
 });
 
+process.on('uncaughtException', err => {
+    logger.error(err.message, err)
+    console.log(`Unhandled Exception Error : ${err.message} --> `, err)
+})
+
+process.on('unhandledRejection', err => {
+    logger.error(err.message, err)
+    console.log(`Unhandled Rejection Error : ${err.message} --> `, err)
+})
 
 var path = require('path');
 global.appRoot = path.resolve(__dirname);
@@ -146,13 +169,13 @@ app.use('/slaas/api/user/mailsettings', getMailSettingsData);
 app.use('/slaas/api/user/cal-arrears', calculateArrearsOne);
 
 
-app.get('/slaas/api/',(req,res) => {
-    
+app.get('/slaas/api/',(req,res) => {    
     res.status(200).send('SLAAS API is Ready')
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from('<h2>SLAAS API is Ready</h2>'));
-
 });
+
+app.use(error)
 
 
 const port = process.env.PORT || 3002;

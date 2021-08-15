@@ -1,8 +1,4 @@
-const mysql = require('mysql');
-const envVariables = require('./envVariables')
 const winston = require('winston')
-
-let dbConnection = {}
 
 const logConfiguration = {
     transports: [
@@ -13,13 +9,8 @@ const logConfiguration = {
 };
 const logger = winston.createLogger(logConfiguration);
 
-try{
-    dbConnection = mysql.createConnection(envVariables.mysqlConnection);
-}
-catch(e) {
-
+module.exports = (err, req, res, next) => {
     logger.error(err.message, err)
     console.log(`Error : ${err.message} --> `, err)
+    res.status(500).send('Server Error')
 }
-
-module.exports = dbConnection

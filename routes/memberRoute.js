@@ -10,7 +10,6 @@ const router = express.Router();
 const connection = require('../database')
 
 let id = '';
-
 let member = '';
 let username = ''
 let memNo = ''
@@ -27,45 +26,30 @@ router.post('/', async (req, res) => {
     else{
         id = uuidv1();
     }
-    
 
-    addProposer(res,id,member)
+    //check member is already registered
 
-    // connection.query(`SELECT email FROM member_personal WHERE email='${member.email}'`, async function (error, results, fields) {
-    //     let databaseError;
-    //     if (error) throw error;
-    //     let i=0;
-    //     let alreadyReg = false;
-        // for(i=0; i<results.length; i++) {
-        //     if(member.email == results[i].email) {
-        //         alreadyReg = true;
-        //         break;
-        //     }            
-        // }
-        // if (alreadyReg) {
-        //     console.log("Member already Registered.");
-        //     res.status(400).send('Member already Registered.');
-        //     return;
-        // } 
-        // else 
-        // addProposer(res,id,member)
-        
-    // });   
+    connection.query(`SELECT memberID, membershipNo, nic FROM members WHERE membershipNo='${member.membershipNo}' OR nic='${member.memberData.nic}'`, async function (error, results, fields) {
+        if(error) throw error
+
+        if(results.length>0) return res.status(400).send("Member Already Registered. ");
+        else  addProposer(res,id,member) 
+    });
+
 });
 
 function addProposer(res,id, member) {
     const proposer = [id, member.proposer.name, member.proposer.memNo , 
         member.proposer.address ,member.proposer.contactNo];
 
+    //add proposer data
+
     connection.query(`INSERT INTO proposers (proposerID, name,membershipNo,address,contactNo) \
     VALUES (?,?,?,?,?)` , proposer, (error, results, fields) => {
 
         if(error) {
-            res.status(404).send(error);
-            console.log('AddPropoerError', error)
-            return 
+           throw error
         }
-        console.log('Proposer Saved')
         addSeconder(res,id,member)
 
     });
@@ -74,16 +58,15 @@ function addProposer(res,id, member) {
 function addSeconder(res,id,member) {
     const seconder = [id, member.seconder.name, member.seconder.memNo , 
         member.seconder.address ,member.seconder.contactNo];
+    
+    //add seconder data
 
     connection.query(`INSERT INTO seconders (seconderID, name,membershipNo,address,contactNo) \
     VALUES (?,?,?,?,?)` , seconder, (error, results, fields) => {
 
         if(error) {
-            res.status(404).send(error);
-            console.log('AddSeconderError', error)
-            return 
-        }
-        console.log('Seconder Saved')
+            throw error
+         }
         addMember(res,id,member)
     });
 }
@@ -104,9 +87,6 @@ function addMember(res,id,member) {
     }
     const validAddrs = validAddress(memberData)
 
-    // const official = [id, memberData.designation, memberData.division , memberData.placeWork, memberData.offMobile, 
-    // memberData.offLandNo, memberData.offFax, memberData.offEmail, offAddrs];
-
     let enroll ;
     let applied ;
     if(memberData.enrollDate) {
@@ -116,8 +96,6 @@ function addMember(res,id,member) {
         let today = new Date();
         applied = new Date().toISOString()
     }
-    
-    //*****************  memberDataFolioNo  needed ***********************
     
     const memberDataArr = [new Date().toDateString(), id ,  member.membershipNo , memberData.gradeOfMem, memberData.section , memberData.status ,  enroll , applied, memberData.council,
         '' , memberData.title , memberData.nameWinitials , memberData.nameInFull , memberData.firstName , memberData.lastName , 
@@ -129,6 +107,8 @@ function addMember(res,id,member) {
     ]
     memberFirstName = memberDataArr[11]
 
+    //add member data
+
     connection.query(`INSERT INTO members (arrearsUpdated, memberID , membershipNo , gradeOfMembership ,section ,status ,enrollDate , appliedDate ,councilPosition, memberFolioNo , \
         title , nameWinitials , fullName , commonFirst , commomLast , gender , dob , nic , mobileNo , fixedNo , email , resAddrs , perAddrs , sendingAddrs,\
         designation , department , placeOfWork , offMobile , offLand , offFax , offEmail , offAddrs , memberBefore , memberFrom , memberTo ,\
@@ -136,15 +116,11 @@ function addMember(res,id,member) {
         )\
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,(SELECT proposerID FROM proposers WHERE proposerID='${id}'),\
         (SELECT seconderID FROM seconders WHERE seconderID='${id}'))` , memberDataArr, (error, results, fields) => {
-        // (error) ? res.status(404).send(error) : addResAddress()
+
             if(error) {
-                res.status(404).send(error);
-                console.log("Member Error",error)
-                return
+            throw error
             }
-            console.log("Member Saved")
-            addAcademic(id,res,member)
-        // console.log(id)        
+            addAcademic(id,res,member)   
     });
 }
 
@@ -159,27 +135,24 @@ function addAcademic(id,res,member) {
         academicData[i] = [member.memberData.academic[i].year, member.memberData.academic[i].degree , member.memberData.academic[i].disciplines, 
                 member.memberData.academic[i].uni, id] ;
 
+        //add academic data
+
         connection.query(`INSERT INTO member_academic (year,degree,disciplines,university,memberID)\
             VALUES (?,?,?,?,(SELECT memberID FROM members WHERE memberID = '${id}'))` , 
             academicData[i], (error, results, fields) => {
 
             
                 if(error) {
-                    console.log('AcademicError', error)
-                    return res.status(404).send(error)
-                    
+                    throw error
                 }
                     
             }
         );
 
     }   
-            
-    // if(i === (member.academic.length-1)) 
-    console.log("Aca Saved")
-    console.log("acc type", member.memberData.status)
-    // res.status(200).send("Successfully Added Member " + memberFirstName)  
-    console.log("memmmmno", member.memberData.membershipNo)
+
+    //send registration success email
+
     sendEmail(member.memberData.email, member.membershipNo, member.memberData.section, member.memberData.status)
     if(member.memberData.status == "Applicant") {
         updateApplicant(id, res)
@@ -187,7 +160,7 @@ function addAcademic(id,res,member) {
     else {
         
         res.status(200).json({
-            msg: "Application Succesfully Submitted"
+            msg: "Member Successfully Registered"
         })
         return
     }
@@ -196,17 +169,13 @@ function addAcademic(id,res,member) {
 }
 
 function updateApplicant(id, res) {
-
+    
     connection.query(`UPDATE applicants
     SET type='Applied' WHERE applicantID='${id}';`, (error, results, fields) => {
 
         if(error) {
-            res.status(404).send(error);
-            console.log(error)
-            return 
+           throw error
         }
-        console.log("Username for token", username)
-        console.log("ID for token", id)
         const token = jwt.sign({id : id, username: username, type: 'Applied'}, env.jewtKey)
         res.status(200).json({
             jwt: token,
@@ -224,19 +193,10 @@ let mailContent={
     from: 'slaasmembermanagement@gmail.com',
     to: '',
     subject: '',
-    text: '',
-    // html: '<h1>You can send html formatted content using Nodemailer with attachments</h1>',
-    // attachments: [
-    //     {
-    //         filename: 'image1.png',
-    //         path: appRoot + '/profilePics/image1.png'
-    //     }
-    // ]
+    text: ''
 };
 
 function sendEmail(e, memNo, section, status) {
-
-    console.log("memno", memNo)
 
     connection.query(`SELECT * FROM emailbodies WHERE type='Registration Success';`
 
@@ -252,34 +212,12 @@ function sendEmail(e, memNo, section, status) {
         mailContent.text = memNoAdded
 
         transporter.sendMail(mailContent, function(error, data){
-            if(error){
-
-                console.log(`Mail Failed`, error);
-                // res.status(404).send(`Registration Success Email Failed`)
-            }
-            else{
-                console.log(`Email send successfully`);
-                // res.status(200).send(`Email successfully`)
-                        
-            }
+            if(error) {
+                throw error
+             }
         });
-    });
-
-    
+    });    
 }
 
-
-
-// function validateMember(member) {
-//     const schema = Joi.object({
-//         userName: Joi.string().min(5).max(50).required(),
-//         officeID: Joi.string().min(5).max(255),
-//         email: Joi.string().min(5).max(255).required().email(),
-//         password: Joi.string().min(5).max(255).required(),
-//         accountType: Joi.string().min(3).max(255).required()
-        
-//     });
-//     return schema.validate(member);
-// }
 
 module.exports = router;

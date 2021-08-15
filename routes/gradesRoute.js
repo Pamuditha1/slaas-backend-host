@@ -5,7 +5,7 @@ const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
-    try{
+    // try{
         connection.query(`SELECT grade, membershipFee FROM grades;`
 
         , async function (error, results, fields) {
@@ -15,17 +15,20 @@ router.get('/', async (req, res) => {
             res.status(200).send(results);
 
         });
-    }
-    catch(e) {
-        console.log("Get grades Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get grades Error : ", e)
+    //     res.status(500).send(error);
+    // }
 
 });
 
 router.post('/', async (req, res) => {
 
-    try{    
+    // try{    
+
+    //add new grade
+
         connection.query(`INSERT INTO grades (grade, membershipFee) VALUES ('${req.body.grade}', '${req.body.membershipFee}') `, 
         (error, results, fields) => {
 
@@ -39,17 +42,20 @@ router.post('/', async (req, res) => {
                 data: req.body.grade
             })        
         });
-    }
-    catch(e) {
-        console.log("Add grades Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Add grades Error : ", e)
+    //     res.status(500).send(error);
+    // }
     
 });
 
 router.post('/update', async (req, res) => {
 
-    try{
+    // try{
+
+        //update grades membership fees
+
         connection.query(`UPDATE grades
         SET membershipFee='${req.body.membershipFee}' WHERE grade='${req.body.grade}';`, (error, results, fields) => {
 
@@ -61,11 +67,11 @@ router.post('/update', async (req, res) => {
             return res.status(200).send("Membership Fee Successfully Updated.")      
 
         });
-    }
-    catch(e) {
-        console.log("Update grades Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Update grades Error : ", e)
+    //     res.status(500).send(error);
+    // }
     
 });
 

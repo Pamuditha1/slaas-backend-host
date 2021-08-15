@@ -3,9 +3,6 @@ const router = express.Router();
 
 const connection = require('../database')
 
-// const bodyParser = require('body-parser')
-// router.use(bodyParser.json())
-
 router.get('/:from/:to', async (req, res) => {
 
     const from = req.params.from
@@ -18,9 +15,16 @@ router.get('/:from/:to', async (req, res) => {
 
 function filterPayments(from, to, res) {
 
-    try{
+    // try{
+
         //Filter payments records
-        connection.query(`SELECT * FROM payments`,
+
+        connection.query(`SELECT 
+        date, time, timeStamp, invoiceNo, nameWinitials, membershipNo, nic, total, yearOfPayment, type, admission, arrears, yearlyFee, idCardFee,
+        description
+        FROM payments, members
+        WHERE members.memberID = payments.memberID
+        ORDER BY invoiceNo DESC`,
 
         async function (error, results, fields) {
             if (error) throw error;
@@ -46,11 +50,11 @@ function filterPayments(from, to, res) {
             res.status(200).send(filteredRenge)        
 
         });
-    }
-    catch(e) {
-        console.log("Filter payments records Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Filter payments records Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 

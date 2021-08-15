@@ -10,47 +10,51 @@ const connection = require('../database')
 
 router.get('/:name', function (req, res, next) {
 
-  try {
+  // try {
 
-    if(req.params.name) {
+  if(req.params.name) {
 
-        var options = {
-          root: path.join(appRoot + '/profilePics'),
-          dotfiles: 'deny',
-          headers: {
-              'x-timestamp': Date.now(),
-              'x-sent': true
-          } 
-      }
-
-
-      connection.query(`SELECT image FROM members
-      WHERE nic='${req.params.name}';`
-
-      , async function (error, results, fields) {
-          if (error) throw error;
-
-          const fileName = results[0].image
-
-          if(fileName) {
-
-            res.sendFile(fileName, options, function (err) {
-              if (err) {
-                console.log("Send profile pic error : ", err)
-              }
-            })
-          }
-
-      });
+      var options = {
+        root: path.join(appRoot + '/profilePics'),
+        dotfiles: 'deny',
+        headers: {
+            'x-timestamp': Date.now(),
+            'x-sent': true
+        } 
     }
-    else {
-      res.status(404).send("No member image")
-    }
+
+    //get image name from database
+
+    connection.query(`SELECT image FROM members
+    WHERE nic='${req.params.name}';`
+
+    , async function (error, results, fields) {
+        if (error) throw error;
+
+        const fileName = results[0].image
+
+        if(fileName) {
+
+          //send the selected image
+
+          res.sendFile(fileName, options, function (err) {
+            if (err) {
+              console.log("Send profile pic error : ", err)
+            }
+          })
+        }
+
+    });
   }
-  catch(e) {
-      console.log("Get member profile pic Error : ", e)
-      res.status(500).send(error);
+  else {
+    res.status(404).send("No member image")
   }
+  
+  // }
+  // catch(e) {
+  //     console.log("Get member profile pic Error : ", e)
+  //     res.status(500).send(error);
+  // }
 })
 
 module.exports = router;

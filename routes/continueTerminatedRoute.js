@@ -5,7 +5,8 @@ const connection = require('../database')
 
 router.post('/:memNo',function(req, res) {
 
-    try{
+    // try{
+        
         //Continue terminated membership
         
         connection.query(`UPDATE members
@@ -15,11 +16,11 @@ router.post('/:memNo',function(req, res) {
             return res.status(200).send("Membership Renewed.")      
 
         });
-    }
-    catch(e) {
-        console.log("Continue terminated membership Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Continue terminated membership Error : ", e)
+    //     res.status(500).send(error);
+    // }
 
 });
 

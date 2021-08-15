@@ -5,7 +5,10 @@ const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
-    try{
+    // try{
+
+        //get terminated members
+
         connection.query(`SELECT 
         title, nameWinitials, status, dot, lastPaidForYear, lastMembershipPaid, arrearsConti, memPaidLast, nic, mobileNo, email, resAddrs, gradeOfMembership, section, enrollDate, 
         councilPosition, memberFolioNo, membershipNo
@@ -17,11 +20,11 @@ router.get('/', async (req, res) => {
             res.status(200).send(results);
 
         });
-    }
-    catch(e) {
-        console.log("Get terminated members Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get terminated members Error : ", e)
+    //     res.status(500).send(error);
+    // }
 
     
 });

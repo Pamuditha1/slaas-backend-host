@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 
 const connection = require('../database')
 
@@ -8,7 +7,7 @@ router.get('/', async (req, res) => {
 
     //get termination periods
 
-    try {
+    // try {
         connection.query(`SELECT period, autoPeriod FROM terminations;`
         , async function (error, results, fields) {
 
@@ -16,11 +15,11 @@ router.get('/', async (req, res) => {
             res.status(200).send(results);
 
         });
-    }
-    catch(e) {
-        console.log("Get committee member history Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get committee member history Error : ", e)
+    //     res.status(500).send(error);
+    // }
 });
 
 router.post('/', async (req, res) => {

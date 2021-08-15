@@ -5,8 +5,10 @@ const connection = require('../database')
 
 router.get('/', async (req, res) => {
 
-    try {
+    // try {
+
         //get committees
+
         connection.query(`SELECT * FROM committies;`
 
         , async function (error, results, fields) {
@@ -16,17 +18,19 @@ router.get('/', async (req, res) => {
             res.status(200).send(results);
 
         });
-    }
-    catch(e) {
-        console.log("Get committees Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get committees Error : ", e)
+    //     res.status(500).send(error);
+    // }
 });
 
 router.post('/', async (req, res) => {
 
-    try{
+    // try{
+
         //add new committee
+
         let committiesData = [req.body.committe]
 
         connection.query(`INSERT INTO committies ( committe ) VALUES (?);` , 
@@ -43,17 +47,19 @@ router.post('/', async (req, res) => {
             })
             
         });
-    }
-    catch(e) {
-        console.log("Add committees Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Add committees Error : ", e)
+    //     res.status(500).send(error);
+    // }
 });
 
 router.get('/history/:comm', async (req, res) => {
 
-    try{
+    // try{
 
+        //filter records by assign dates
+        
         connection.query(`SELECT fromD, toD from officebearershistory WHERE committee="${req.params.comm}" GROUP BY fromD ;`
 
         , async function (error, results, fields) {
@@ -64,18 +70,19 @@ router.get('/history/:comm', async (req, res) => {
             getMemberAccordingToDates(dateRanges, req, res)
 
         });
-    }
-    catch(e) {
-        console.log("Get committee history Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get committee history Error : ", e)
+    //     res.status(500).send(error);
+    // }
 });
 
 function getMemberAccordingToDates(dateRanges, req, res) {
 
-    try {
+    // try {
 
         //get member history
+
         connection.query(`SELECT * from officebearershistory WHERE committee="${req.params.comm}";`
 
         , async function (error, results, fields) {
@@ -89,11 +96,11 @@ function getMemberAccordingToDates(dateRanges, req, res) {
             res.status(200).send(response);
 
         });
-    }
-    catch(e) {
-        console.log("Get committee member history Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get committee member history Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 module.exports = router

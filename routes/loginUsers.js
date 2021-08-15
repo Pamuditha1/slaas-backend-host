@@ -13,8 +13,10 @@ router.post('/admin', async (req, res) => {
     // const { error } = validateLogin(req.body);
     // if (error) return res.status(400).send(error.details[0].message);
 
+
     //Check whether the user available
-    try {
+
+    // try {
     
         connection.query(`SELECT email,password,userName, adminID FROM adminlogins WHERE email='${req.body.email}'`, async function (error, results, fields) {
             
@@ -29,6 +31,9 @@ router.post('/admin', async (req, res) => {
             for(i=0; i<results.length; i++) {
                 if(req.body.email == results[i].email) {
                     alreadyReg = true;
+
+                    //check password
+
                     passwordCorrect = await bcrypt.compare(req.body.password, results[i].password);
                     if(passwordCorrect){
                         
@@ -40,17 +45,24 @@ router.post('/admin', async (req, res) => {
             }
             if (!alreadyReg) {
                 
+                //already registered
+
                 res.status(400).json({
                     msg: "User haven't Registered"
                 });
             } 
             else if(!passwordCorrect) {
+
+                //incorrect passowrd
+
                 res.status(400).json({
                     msg: 'Password is incorrect.'
                 })
             }
             else {
 
+                //send token
+                
                 const token = jwt.sign({id : admin, username: username, type: "Admin"}, env.jewtKey)
                 res.status(200).header('x-auth-token', token).json({
                     jwt: token,
@@ -60,11 +72,11 @@ router.post('/admin', async (req, res) => {
             }
 
         })
-    }
-    catch(e) {
-        console.log("Login user Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Login user Error : ", e)
+    //     res.status(500).send(error);
+    // }
 });
 
 

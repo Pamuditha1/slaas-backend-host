@@ -10,7 +10,7 @@ var terminatedMembers = []
 router.get('/last-update', async (req, res) => {
 
     //get last terminated date
-    try {
+    // try {
         connection.query(`SELECT date FROM terminationrecords ORDER BY id DESC LIMIT 1;`
 
         , async function (error, results, fields) {
@@ -19,11 +19,11 @@ router.get('/last-update', async (req, res) => {
             res.status(200).send(results[0].date);
 
         });
-    }
-    catch(e) {
-        console.log("Get Terminated Dates Error : ", e)
-        res.status(500).send(error);
-    }    
+    // }
+    // catch(e) {
+    //     console.log("Get Terminated Dates Error : ", e)
+    //     res.status(500).send(error);
+    // }    
     
 });
 
@@ -36,8 +36,10 @@ router.get('/', async (req, res) => {
 
 function getTerminationDates(res) {
 
-    try{
+    // try{
+
         //get termination periods
+
         connection.query(`SELECT * FROM terminations;`
         , async function (error, results, fields) {
 
@@ -47,18 +49,19 @@ function getTerminationDates(res) {
             getMembersShouldTerminate(res, datesToTerminate)        
 
         });
-    }
-    catch(e) {
-        console.log("Get Termination Periods Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get Termination Periods Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 function getMembersShouldTerminate(res, datesToTerminate) {
 
-    try{
+    // try{
 
     //select outdated members
+
     connection.query(`SELECT memberID, membershipNo, nameWinitials, status, lastMembershipPaid FROM members WHERE status != 'Terminated';`
 
     , async function (error, results, fields) {
@@ -68,6 +71,7 @@ function getMembersShouldTerminate(res, datesToTerminate) {
         if (error) throw error;
 
         //get outdated members according to last membership payment date (lastMembershipPaid) - more than 1 year
+
         let outdatedMembers = results.filter((m) => {
 
             if(m.lastMembershipPaid) {
@@ -78,9 +82,11 @@ function getMembersShouldTerminate(res, datesToTerminate) {
                 let timeDiff = todayTime - lastPaidTime
 
                 //difference between today and last membership payment date
+
                 let diffDays = timeDiff / (1000 * 60 * 60 * 24)
 
                 //select last membershi payment > termination period years
+
                 if(diffDays > datesToTerminate*365) {
                     return true
                 }
@@ -90,6 +96,7 @@ function getMembersShouldTerminate(res, datesToTerminate) {
         })
 
         // calculate arrears according to the last mambership paid for year (lastPaidForYear)
+
         let outdatedCount = outdatedMembers.length
         
         outdatedMembers.forEach(m => {
@@ -106,11 +113,11 @@ function getMembersShouldTerminate(res, datesToTerminate) {
         });
         
     });
-    }
-    catch(e) {
-        console.log("Select Outdated Members Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Select Outdated Members Error : ", e)
+    //     res.status(500).send(error);
+    // }
 
     
 }
@@ -119,7 +126,10 @@ function setTerminated(memberID, name, memNo, outdatedCount, res) {
     
     let dot = new Date().toISOString()
 
-    try {
+    // try {
+
+    //update as terminated
+    
     connection.query(`UPDATE members
     SET status='Terminated', dot='${dot}' WHERE memberID='${memberID}';`, (error, results, fields) => {
 
@@ -138,11 +148,11 @@ function setTerminated(memberID, name, memNo, outdatedCount, res) {
         }    
 
     });
-    }
-    catch(e) {
-        console.log("Update member dot Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Update member dot Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 

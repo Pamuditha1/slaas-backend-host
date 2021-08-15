@@ -12,20 +12,13 @@ let mailContent={
     from: 'slaasmembermanagement@gmail.com',
     to: '',
     subject: 'Reminder Email',
-    text: 'Your Membership Going to be terminated',
-    // html: '<h1>You can send html formatted content using Nodemailer with attachments</h1>',
-    // attachments: [
-    //     {
-    //         filename: 'image1.png',
-    //         path: appRoot + '/profilePics/image1.png'
-    //     }
-    // ]
+    text: 'Your Membership Going to be terminated'
 };
 
 
 router.get('/last-update', async (req, res) => {
 
-    try{
+    // try{
 
         //Get reminder mails last update
 
@@ -37,11 +30,11 @@ router.get('/last-update', async (req, res) => {
             res.status(200).send(results[0].date);
 
         });
-    }
-    catch(e) {
-        console.log("Get reminder mails last update Error : ", e)
-        res.status(500).send(error);
-    }        
+    // }
+    // catch(e) {
+    //     console.log("Get reminder mails last update Error : ", e)
+    //     res.status(500).send(error);
+    // }        
     
 });
 
@@ -53,7 +46,7 @@ router.get('/', async (req, res) => {
 function getTerminationDates(res) {
 
 
-    try {
+    // try {
 
         //Get reminder mails termination periods
 
@@ -67,16 +60,16 @@ function getTerminationDates(res) {
             getMembersOfSendingMails(res, datesToTerminate)       
 
         });
-    }
-    catch(e) {
-        console.log("Get reminder mails termination periods Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Get reminder mails termination periods Error : ", e)
+    //     res.status(500).send(error);
+    // }
 }
 
 function getMembersOfSendingMails(res, datesToTerminate) {
 
-    try {
+    // try {
         
         //select members to send reminder mails
 
@@ -124,6 +117,7 @@ function getMembersOfSendingMails(res, datesToTerminate) {
             })
 
             // send mails
+            
             outdatedMembers.forEach(m => {
                 outdatedMails.push({email : m.email, id: m.memberID})
             })
@@ -131,6 +125,7 @@ function getMembersOfSendingMails(res, datesToTerminate) {
             sendMailstoEmails(outdatedMails, res)
 
             //update last arrears calculated date
+
             connection.query(`INSERT INTO remindermails (date) VALUES ('${today.toISOString()}') `, 
             (error, results, fields) => {
 
@@ -141,11 +136,11 @@ function getMembersOfSendingMails(res, datesToTerminate) {
             });
             
         });
-    }
-    catch(e) {
-        console.log("Reminder mails select members Error : ", e)
-        res.status(500).send(error);
-    }
+    // }
+    // catch(e) {
+    //     console.log("Reminder mails select members Error : ", e)
+    //     res.status(500).send(error);
+    // }
 
     
 }
