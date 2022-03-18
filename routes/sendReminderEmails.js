@@ -9,7 +9,7 @@ const connection = require('../database')
 let transporter = nodemailer.createTransport(nodemailMailGun(env.emailAuth));
 
 let mailContent={
-    from: 'slaasmembermanagement@gmail.com',
+    from: process.env.SENDING_MAIL,
     to: '',
     subject: 'Reminder Email',
     text: 'Your Membership Going to be terminated'

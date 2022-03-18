@@ -6,6 +6,7 @@ const cors = require("cors");
 require("dotenv").config();
 const envVariables = require("./envVariables");
 const error = require("./middleware/error");
+const path = require("path");
 
 const winston = require("winston");
 
@@ -21,9 +22,10 @@ const logger = winston.createLogger(logConfiguration);
 let dbConnection = require("./database");
 dbConnection.connect((err) => {
   if (!err) return console.log("Successfully Connected to the MySql Database");
-
-  dbConnection = reconnect(dbConnection);
-  console.log("Database Connection Failed", JSON.stringify(err));
+  else {
+    dbConnection = reconnect(dbConnection);
+    console.log("Database Connection Failed", JSON.stringify(err));
+  }
 });
 
 //- Reconnection function
@@ -111,7 +113,6 @@ process.on("unhandledRejection", (err) => {
   console.log(`Unhandled Rejection Error : ${err.message} --> `, err);
 });
 
-var path = require("path");
 global.appRoot = path.resolve(__dirname);
 
 const users = require("./routes/userRoute");
@@ -189,6 +190,15 @@ app.get("/slaas/api/", (req, res) => {
   res.set("Content-Type", "text/html");
   res.send(Buffer.from("<h2>SLAAS API is Ready</h2>"));
 });
+console.log("ENV : ", process.env.NODE_ENV);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
+}
 
 app.use(error);
 
